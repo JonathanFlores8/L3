@@ -22,6 +22,7 @@
     "eslint-plugin-jsdoc": "^46.8.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.1.1",
+    "testgraphifyjs": "^1.0.7",
     "vite": "^4.4.11"
   }
 }
