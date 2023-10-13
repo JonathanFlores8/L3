@@ -87,6 +87,7 @@ template.innerHTML = `
   <h1>Create Your Chart</h1>
 
   <input type="text" id="chartTitle" placeholder="Enter Chart Title" />
+  <button id="createGraphButton">Create My Graph</button>
 
   <select id="chartType">
     <option value="bar">Bar Chart</option>
@@ -108,6 +109,7 @@ template.innerHTML = `
 
   <button id="downloadPNG" class="hidden">Download as PNG</button>
   <button id="newChart" class="hidden">New Chart</button>
+  <button id="confirmChartType" class="hidden">Confirm Chart Type</button>
 </div>
 `
 
@@ -130,6 +132,8 @@ ccccccccccccccccccccccccccccccccccccccccc */
       shadowRoot.appendChild(template.content.cloneNode(true))
 
       // Initialize element references
+      this.chartTitleElement = shadowRoot.querySelector('#chartTitle')
+      this.createGraphButton = shadowRoot.querySelector('#createGraphButton') // Initialize this before calling hideAllElements
       this.newChartButton = shadowRoot.querySelector('#newChart')
       this.chartTypeElement = shadowRoot.querySelector('#chartType')
       this.statsContainer = shadowRoot.querySelector('.stats-container')
@@ -138,6 +142,18 @@ ccccccccccccccccccccccccccccccccccccccccc */
       this.barCanvas = shadowRoot.querySelector('#barCanvas')
       this.errorMessage = shadowRoot.querySelector('#error-message')
       this.downloadPNGButton = shadowRoot.querySelector('#downloadPNG')
+      this.confirmChartTypeButton = shadowRoot.querySelector('#confirmChartType')
+
+      this.hideAllElements()
+      this.chartTitleElement.style.display = 'block'
+      this.createGraphButton.style.display = 'block' // Show the "Create My Graph" button
+
+      this.createGraphButton.addEventListener('click', () => {
+        if (this.chartTitleElement.value.trim() !== '') {
+          this.hideAllElements()
+          this.chartTypeElement.style.display = 'block'
+        }
+      })
 
       // Add event listeners
       this.generateGraphButton.addEventListener('click', () => {
@@ -154,6 +170,39 @@ ccccccccccccccccccccccccccccccccccccccccc */
 
       this.newChartButton.addEventListener('click', () => {
         this.newChart()
+      })
+
+      this.chartTitleElement = shadowRoot.querySelector('#chartTitle')
+      this.chartTitleElement.addEventListener('input', (e) => {
+        if (e.target.value.trim() !== '') {
+          this.revealNextStep(2)
+        }
+
+        this.chartTypeElement.addEventListener('change', () => {
+          this.confirmChartTypeButton.style.display = 'block'
+          this.revealNextStep(3)
+        })
+      })
+
+      this.confirmChartTypeButton.addEventListener('click', () => {
+        const selectedChartType = this.chartTypeElement.value
+        if (selectedChartType) {
+          this.hideAllElements()
+          this.statsContainer.style.display = 'block'
+          this.addStatButton.style.display = 'block'
+          this.generateGraphButton.style.display = 'block'
+        }
+      })
+
+      this.createGraphButton.addEventListener('click', () => {
+        if (this.chartTitleElement.value.trim() !== '') {
+          this.hideAllElements()
+          this.chartTypeElement.style.display = 'block'
+          this.confirmChartTypeButton.style.display = 'block' // Display the "Confirm Chart Type" button here
+        }
+      })
+      this.chartTypeElement.addEventListener('change', () => {
+        this.revealNextStep(3)
       })
     }
 
@@ -202,20 +251,21 @@ ccccccccccccccccccccccccccccccccccccccccc */
 
       const barCtx = this.barCanvas.getContext('2d')
       const selectedChartType = this.chartTypeElement.value
+      const chartTitle = this.chartTitleElement.value
+
       const barConfig = {
         type: selectedChartType,
         data: values,
         labels,
-        color: 'blue'
+        color: 'blue' // You can adjust this color as needed
       }
-
-      this.barCanvas.classList.remove('hidden')
-      this.downloadPNGButton.classList.remove('hidden')
-      this.newChartButton.classList.remove('hidden')
 
       const chart = new MyChart(barCtx, barConfig).init()
       chart.draw()
       chart.toggleGrid(true)
+
+      this.barCanvas.style.display = 'block'
+      this.downloadPNGButton.style.display = 'block'
     }
 
     /**
@@ -251,5 +301,33 @@ ccccccccccccccccccccccccccccccccccccccccc */
       this.downloadPNGButton.classList.add('hidden')
       this.newChartButton.classList.add('hidden')
       this.errorMessage.style.display = 'none'
+    }
+
+    /**
+     *
+     * @param step
+     */
+    revealNextStep (step) {
+      const element = this.shadowRoot.querySelector(`[data-step="${step}"]`)
+      if (element) {
+        element.classList.remove('hidden')
+      }
+    }
+
+    /**
+     *
+     */
+    hideAllElements () {
+      this.chartTitleElement.style.display = 'none'
+      this.chartTypeElement.style.display = 'none'
+      this.statsContainer.style.display = 'none'
+      this.addStatButton.style.display = 'none'
+      this.generateGraphButton.style.display = 'none'
+      this.barCanvas.style.display = 'none'
+      this.downloadPNGButton.style.display = 'none'
+      this.newChartButton.style.display = 'none'
+      this.errorMessage.style.display = 'none'
+      this.createGraphButton.style.display = 'none'
+      this.confirmChartTypeButton.style.display = 'none'
     }
   })
