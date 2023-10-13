@@ -66,33 +66,60 @@ template.innerHTML = `
 
   }
 
+  .hidden {
+    display: none;
+  }
+  
+  .stat-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .stat-entry input[type="text"] {
+    flex: 1;
+    margin-right: 5px;
+  }
+
 </style>
 
 <div>
-  <h1>Input Statistics</h1>
+  <h1>Create Your Chart</h1>
+
+  <input type="text" id="chartTitle" placeholder="Enter Chart Title" />
+
   <select id="chartType">
     <option value="bar">Bar Chart</option>
     <option value="pie">Pie Chart</option>
   </select>
+
   <div class="stats-container">
-    <div class="single-stat">
-      <input type="text" placeholder="Enter a number e.g. 10">
+    <div class="stat-entry">
+      <input type="text" placeholder="Label e.g. One">
+      <input type="text" placeholder="Value e.g. 10">
     </div>
   </div>
-  <button class="add-stat-btn">+</button>
+
+  <button class="add-stat-btn">Add Stat</button>
   <button id="generateGraph">Generate Graph</button>
   <p id="error-message">Invalid input. Please enter numbers.</p>
-  <canvas id="barCanvas"></canvas>
-  <button id="downloadPNG">Download as PNG</button>
+
+  <canvas id="barCanvas" class="hidden"></canvas>
+
+  <button id="downloadPNG" class="hidden">Download as PNG</button>
+  <button id="newChart" class="hidden">New Chart</button>
 </div>
 `
 
 /**
  * Custom web component for input and generation of charts.
  *
- * @extends {HTMLElement}
+ * @augments {HTMLElement}
  */
-customElements.define('input-component', class InputComponent extends HTMLElement {
+customElements.define('input-component', /**
+ccccccccccccccccccccccccccccccccccccccccc *
+ccccccccccccccccccccccccccccccccccccccccc */
+  class InputComponent extends HTMLElement {
   /**
    * Constructor for the custom element.
    */
@@ -103,6 +130,7 @@ customElements.define('input-component', class InputComponent extends HTMLElemen
       shadowRoot.appendChild(template.content.cloneNode(true))
 
       // Initialize element references
+      this.newChartButton = shadowRoot.querySelector('#newChart')
       this.chartTypeElement = shadowRoot.querySelector('#chartType')
       this.statsContainer = shadowRoot.querySelector('.stats-container')
       this.generateGraphButton = shadowRoot.querySelector('#generateGraph')
@@ -123,6 +151,10 @@ customElements.define('input-component', class InputComponent extends HTMLElemen
       this.downloadPNGButton.addEventListener('click', () => {
         this.downloadGraphAsPNG()
       })
+
+      this.newChartButton.addEventListener('click', () => {
+        this.newChart()
+      })
     }
 
     /**
@@ -130,10 +162,14 @@ customElements.define('input-component', class InputComponent extends HTMLElemen
      */
     addStatInput () {
       const inputWrapper = document.createElement('div')
-      inputWrapper.classList.add('single-stat')
+      inputWrapper.classList.add('stat-entry')
+      const labelField = document.createElement('input')
+      labelField.type = 'text'
+      labelField.placeholder = 'Label e.g. One'
       const inputField = document.createElement('input')
       inputField.type = 'text'
-      inputField.placeholder = 'Enter a number e.g. 10'
+      inputField.placeholder = 'Value e.g. 10'
+      inputWrapper.appendChild(labelField)
       inputWrapper.appendChild(inputField)
       this.statsContainer.appendChild(inputWrapper)
     }
@@ -142,16 +178,22 @@ customElements.define('input-component', class InputComponent extends HTMLElemen
      * Generates the graph based on user input.
      */
     generateGraph () {
-      const inputs = this.statsContainer.querySelectorAll('input')
+      const statEntries = this.statsContainer.querySelectorAll('.stat-entry')
       const values = []
-      inputs.forEach(input => {
-        const value = parseInt(input.value, 10)
+      const labels = []
+
+      statEntries.forEach(entry => {
+        const labelInput = entry.querySelector('input[type="text"]:first-child')
+        const valueInput = entry.querySelector('input[type="text"]:last-child')
+        const value = parseInt(valueInput.value, 10)
+
         if (!isNaN(value)) {
           values.push(value)
+          labels.push(labelInput.value)
         }
       })
 
-      if (values.length === 0 || values.length !== inputs.length) {
+      if (values.length === 0 || values.length !== statEntries.length) {
         this.errorMessage.style.display = 'block'
         return
       } else {
@@ -163,9 +205,13 @@ customElements.define('input-component', class InputComponent extends HTMLElemen
       const barConfig = {
         type: selectedChartType,
         data: values,
-        labels: Array.from({ length: values.length }, (_, i) => `Label ${i + 1}`),
+        labels,
         color: 'blue'
       }
+
+      this.barCanvas.classList.remove('hidden')
+      this.downloadPNGButton.classList.remove('hidden')
+      this.newChartButton.classList.remove('hidden')
 
       const chart = new MyChart(barCtx, barConfig).init()
       chart.draw()
@@ -192,5 +238,18 @@ customElements.define('input-component', class InputComponent extends HTMLElemen
       link.href = image
       link.download = `graph.${format.split('/')[1]}`
       link.click()
+    }
+
+    /**
+     *
+     */
+    newChart () {
+      this.chartTypeElement.value = 'bar'
+      this.statsContainer.innerHTML = ''
+      this.addStatInput()
+      this.barCanvas.classList.add('hidden')
+      this.downloadPNGButton.classList.add('hidden')
+      this.newChartButton.classList.add('hidden')
+      this.errorMessage.style.display = 'none'
     }
   })
