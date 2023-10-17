@@ -3,92 +3,132 @@ import { MyChart } from 'testgraphifyjs'
 const template = document.createElement('template')
 template.innerHTML = `
 <style>
-  body {
-    background-color: #f4f4f4;
-  }
-
-  #barCanvas {
-    transform: scale(1);
+#barCanvas {
     max-width: 100%;
-    border: 1px solid #ccc;
-  }
+    border: 1px solid #e5e5e5;
+    border-radius: 5px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.05);
+    margin-top: 20px;
+}
 
-  h1 {
-    color: #333;
+h1 {
+    color: #2c3e50;
     text-align: center;
-  }
+    font-size: 42px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
 
-  input, select {
+input, select {
+    width: 100%;
     padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-  }
+    border-radius: 5px;
+    border: 1px solid #e5e5e5;
+    font-size: 16px;
+    color: #555;
+    outline: none;
+    transition: border-color 0.2s;
+}
 
-  button {
+input:focus, select:focus {
+    border-color: #007BFF;
+}
+
+button {
     padding: 10px 15px;
-    background-color: #007BFF;
+    background-color: #85bb65;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.2s;
-  }
+    transition: background-color 0.3s, transform 0.3s;
+    margin-top: 10px;
+}
 
-  button:hover {
-    background-color: #0056b3;
-  }
+button:hover {
+    background-color: #83a96a;
+    transform: translateY(-1px);
+}
 
-  .error-message {
-    color: red;
-    margin-top: 5px;
+button:active {
+    transform: translateY(0);
+}
+
+.error-message {
+    color: #e74c3c;
+    margin-top: 10px;
     text-align: center;
     display: none;
-  }
+    font-weight: 500;
+}
 
-  .stats-container {
+.stats-container {
+    width: 100%;
     text-align: center;
-  }
+    margin-top: 10px;
+}
 
-  .single-stat {
-  }
-
-  .add-stat-btn {
+.add-stat-btn {
     display: block;
-    margin: 10px auto; 
-  }
+    margin: 15px auto;
+    width: 100%;
+    max-width: 150px;
+}
 
-  div {
+.main-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    padding: 20px;
     box-sizing: border-box;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
 
-  }
-
-  .hidden {
+.hidden {
     display: none;
-  }
-  
-  .stat-entry {
+}
+
+.stat-entry {
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
+    width: 100%;
+    margin-bottom: 15px;
+}
 
-  .stat-entry input[type="text"] {
+.stat-entry input[type="text"] {
     flex: 1;
-    margin-right: 5px;
-  }
+    margin-right: 10px;
+}
 
+#chartType {
+    background-color: white;
+    border: 1px solid #e5e5e5;
+    border-radius: 5px;
+    padding: 10px 15px;
+    font-size: 16px;
+    color: #555;
+    width: 100%;
+    cursor: pointer;
+}
+
+#createGraphButton {
+  display: block
+}
 </style>
 
-<div>
-  <h1>Create Your Chart</h1>
 
+
+<div class="main-container">
+  <h1>Create Your Chart</h1>
+  <div class="title-box">
   <input type="text" id="chartTitle" placeholder="Enter Chart Title" />
   <button id="createGraphButton">Create My Graph</button>
-
+  </div>
   <select id="chartType">
     <option value="bar">Bar Chart</option>
     <option value="pie">Pie Chart</option>
@@ -106,29 +146,22 @@ template.innerHTML = `
   <p id="error-message">Invalid input. Please enter numbers.</p>
 
   <canvas id="barCanvas" class="hidden"></canvas>
-
   <button id="downloadPNG" class="hidden">Download as PNG</button>
   <button id="newChart" class="hidden">New Chart</button>
   <button id="confirmChartType" class="hidden">Confirm Chart Type</button>
-</div>
+  <error-handler id="input-error-handler"></error-handler>
 `
 
-/**
- * Custom web component for input and generation of charts.
- *
- */
 customElements.define('input-component', class InputComponent extends HTMLElement {
-  /**
-   * Constructor for the custom element.
-   */
+
     constructor () {
       super()
-      // Attach shadow DOM and append template content
       const shadowRoot = this.attachShadow({ mode: 'open' })
       shadowRoot.appendChild(template.content.cloneNode(true))
 
       this.selectedChartType = 'bar'
-      // Initialize element references
+
+      this.errorHandler = shadowRoot.querySelector('#input-error-handler');
       this.chartTitleElement = shadowRoot.querySelector('#chartTitle')
       this.createGraphButton = shadowRoot.querySelector('#createGraphButton')
       this.newChartButton = shadowRoot.querySelector('#newChart')
@@ -152,7 +185,6 @@ customElements.define('input-component', class InputComponent extends HTMLElemen
         }
       })
 
-      // Add event listeners
       this.generateGraphButton.addEventListener('click', () => {
         this.generateGraph()
       })
@@ -205,9 +237,6 @@ customElements.define('input-component', class InputComponent extends HTMLElemen
       })
     }
 
-    /**
-     * Adds a new stat input field to the component.
-     */
     addStatInput () {
       const inputWrapper = document.createElement('div')
       inputWrapper.classList.add('stat-entry')
@@ -222,9 +251,6 @@ customElements.define('input-component', class InputComponent extends HTMLElemen
       this.statsContainer.appendChild(inputWrapper)
     }
 
-    /**
-     * Generates the graph based on user input.
-     */
     generateGraph () {
       const statEntries = this.statsContainer.querySelectorAll('.stat-entry')
       const values = []
@@ -259,17 +285,15 @@ customElements.define('input-component', class InputComponent extends HTMLElemen
           type: selectedChartType,
           data: values,
           labels,
-          color: 'blue' // You can adjust this color as needed or provide a dynamic way for user to choose
+          color: 'blue'
         }
       } else if (selectedChartType === 'pie') {
-        // We assume equal distribution of colors for simplicity.
-        // You might need to adjust this for more dynamic behavior.
-        const colors = ['yellow', 'orange', 'pink'] // Default colors, can be dynamic
+        const colors = ['yellow', 'orange', 'pink']
         chartConfig = {
           type: selectedChartType,
           data: values,
           labels,
-          colors: colors.slice(0, values.length) // Slicing to match the data count
+          colors: colors.slice(0, values.length)
         }
       }
 
@@ -284,9 +308,6 @@ customElements.define('input-component', class InputComponent extends HTMLElemen
       this.downloadPNGButton.style.display = 'block'
     }
 
-    /**
-     * Downloads the generated graph as a PNG image.
-     */
     downloadGraphAsPNG () {
       const format = 'image/png'
       const image = this.barCanvas.toDataURL(format)
@@ -296,9 +317,6 @@ customElements.define('input-component', class InputComponent extends HTMLElemen
       link.click()
     }
 
-    /**
-     *
-     */
     newChart () {
       this.chartTypeElement.value = 'bar'
       this.statsContainer.innerHTML = ''
@@ -309,10 +327,6 @@ customElements.define('input-component', class InputComponent extends HTMLElemen
       this.errorMessage.style.display = 'none'
     }
 
-    /**
-     *
-     * @param step
-     */
     revealNextStep (step) {
       const element = this.shadowRoot.querySelector(`[data-step="${step}"]`)
       if (element) {
@@ -320,9 +334,6 @@ customElements.define('input-component', class InputComponent extends HTMLElemen
       }
     }
 
-    /**
-     *
-     */
     hideAllElements () {
       this.chartTitleElement.style.display = 'none'
       this.chartTypeElement.style.display = 'none'
