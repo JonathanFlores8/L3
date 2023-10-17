@@ -252,61 +252,73 @@ customElements.define('input-component', class InputComponent extends HTMLElemen
     }
 
     generateGraph () {
-      const statEntries = this.statsContainer.querySelectorAll('.stat-entry')
-      const values = []
-      const labels = []
+      const pixelRatio = window.devicePixelRatio || 1;
+      
+      const desiredWidth = 800;
+      const desiredHeight = 400;
+      
+      this.barCanvas.width = desiredWidth * pixelRatio;
+      this.barCanvas.height = desiredHeight * pixelRatio;
+      this.barCanvas.style.width = `${desiredWidth}px`;
+      this.barCanvas.style.height = `${desiredHeight}px`;
+
+      const chartCtx = this.barCanvas.getContext('2d');
+      chartCtx.scale(pixelRatio, pixelRatio);
+
+      const statEntries = this.statsContainer.querySelectorAll('.stat-entry');
+      const values = [];
+      const labels = [];
 
       statEntries.forEach(entry => {
-        const labelInput = entry.querySelector('input[type="text"]:first-child')
-        const valueInput = entry.querySelector('input[type="text"]:last-child')
-        const value = parseInt(valueInput.value, 10)
+          const labelInput = entry.querySelector('input[type="text"]:first-child');
+          const valueInput = entry.querySelector('input[type="text"]:last-child');
+          const value = parseInt(valueInput.value, 10);
 
-        if (!isNaN(value)) {
-          values.push(value)
-          labels.push(labelInput.value)
-        }
-      })
+          if (!isNaN(value)) {
+              values.push(value);
+              labels.push(labelInput.value);
+          }
+      });
 
       if (values.length === 0 || values.length !== statEntries.length) {
-        this.errorMessage.style.display = 'block'
-        return
+          this.errorMessage.style.display = 'block';
+          return;
       } else {
-        this.errorMessage.style.display = 'none'
+          this.errorMessage.style.display = 'none';
       }
 
-      const chartCtx = this.barCanvas.getContext('2d')
-      const selectedChartType = this.chartTypeElement.value
-      const chartTitle = this.chartTitleElement.value
+      const selectedChartType = this.chartTypeElement.value;
+      const chartTitle = this.chartTitleElement.value;
 
-      let chartConfig
+      let chartConfig;
 
       if (selectedChartType === 'bar') {
-        chartConfig = {
-          type: selectedChartType,
-          data: values,
-          labels,
-          color: 'blue'
-        }
+          chartConfig = {
+              type: selectedChartType,
+              data: values,
+              labels,
+              color: 'blue'
+          };
       } else if (selectedChartType === 'pie') {
-        const colors = ['yellow', 'orange', 'pink']
-        chartConfig = {
-          type: selectedChartType,
-          data: values,
-          labels,
-          colors: colors.slice(0, values.length)
-        }
+          const colors = ['yellow', 'orange', 'pink'];
+          chartConfig = {
+              type: selectedChartType,
+              data: values,
+              labels,
+              colors: colors.slice(0, values.length)
+          };
       }
 
-      const chart = new MyChart(chartCtx, chartConfig).init()
-      chart.draw()
+      const chart = new MyChart(chartCtx, chartConfig).init();
+      chart.draw();
 
       if (selectedChartType === 'bar') {
-        chart.toggleGrid(true)
+          chart.toggleGrid(true);
       }
 
-      this.barCanvas.style.display = 'block'
-      this.downloadPNGButton.style.display = 'block'
-    }
+      this.barCanvas.style.display = 'block';
+      this.downloadPNGButton.style.display = 'block';
+  }
 
     downloadGraphAsPNG () {
       const format = 'image/png'
