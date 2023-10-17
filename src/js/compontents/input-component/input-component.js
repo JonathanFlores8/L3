@@ -337,6 +337,7 @@ customElements.define(
 
       this.elements.barCanvas.style.display = "block";
       this.elements.downloadPNGButton.style.display = "block";
+	  this.elements.newChartButton.style.display = "block";
     }
 
     downloadGraphAsPNG() {
@@ -353,14 +354,8 @@ customElements.define(
     }
 
     newChart() {
-      this.elements.chartType.value = "bar";
-      this.elements.statsContainer.innerHTML = "";
-      this.addStatInput();
-      this.elements.barCanvas.classList.add("hidden");
-      this.elements.downloadPNGButton.classList.add("hidden");
-      this.elements.newChartButton.classList.add("hidden");
-      this.elements.errorMessage.style.display = "none";
-    }
+		location.reload();
+	}	
 
     hideAllElements() {
       Object.values(this.elements).forEach((element) => {
