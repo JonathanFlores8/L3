@@ -156,13 +156,13 @@ customElements.define(
   "input-component",
   class InputComponent extends HTMLElement {
     constructor() {
-		super();
-		this.attachShadow({ mode: "open" });
-		this.shadowRoot.appendChild(template.content.cloneNode(true));
-		
-		this.initializeMembers();
-		this.setupEventListeners();
-		this.initializeUI();
+      super();
+      this.attachShadow({ mode: "open" });
+      this.shadowRoot.appendChild(template.content.cloneNode(true));
+
+      this.initializeMembers();
+      this.setupEventListeners();
+      this.initializeUI();
     }
 
     initializeMembers() {
@@ -205,10 +205,6 @@ customElements.define(
         "click",
         this.newChart.bind(this)
       );
-      this.elements.chartTitle.addEventListener(
-        "input",
-        this.handleChartTitleInput.bind(this)
-      );
       this.elements.confirmChartTypeButton.addEventListener(
         "click",
         this.confirmChartType.bind(this)
@@ -229,12 +225,6 @@ customElements.define(
       if (this.elements.chartTitle.value.trim() !== "") {
         this.hideAllElements();
         this.elements.chartType.style.display = "block";
-        this.elements.confirmChartTypeButton.style.display = "block";
-      }
-    }
-
-    handleChartTitleInput(e) {
-      if (e.target.value.trim() !== "") {
         this.elements.confirmChartTypeButton.style.display = "block";
       }
     }
@@ -278,73 +268,76 @@ customElements.define(
     }
 
     generateGraph() {
-		const pixelRatio = window.devicePixelRatio || 1;
-		
-		const desiredWidth = 800;
-		const desiredHeight = 400;
-		
-		this.elements.barCanvas.width = desiredWidth * pixelRatio;
-		this.elements.barCanvas.height = desiredHeight * pixelRatio;
-		this.elements.barCanvas.style.width = `${desiredWidth}px`;
-		this.elements.barCanvas.style.height = `${desiredHeight}px`;
-	
-		const chartCtx = this.elements.barCanvas.getContext('2d');
-		chartCtx.scale(pixelRatio, pixelRatio);
-	
-		const statEntries = this.elements.statsContainer.querySelectorAll('.stat-entry');
-		const values = [];
-		const labels = [];
-	
-		statEntries.forEach(entry => {
-			const labelInput = entry.querySelector('input[type="text"]:first-child');
-			const valueInput = entry.querySelector('input[type="text"]:last-child');
-			const value = parseInt(valueInput.value, 10);
-	
-			if (!isNaN(value)) {
-				values.push(value);
-				labels.push(labelInput.value);
-			}
-		});
-	
-		if (values.length === 0 || values.length !== statEntries.length) {
-			this.elements.errorMessage.style.display = 'block';
-			return;
-		} else {
-			this.elements.errorMessage.style.display = 'none';
-		}
-	
-		const selectedChartType = this.elements.chartType.value;
-		const chartTitle = this.elements.chartTitle.value;
-	
-		let chartConfig;
-	
-		if (selectedChartType === 'bar') {
-			chartConfig = {
-				type: selectedChartType,
-				data: values,
-				labels,
-				color: 'blue'
-			};
-		} else if (selectedChartType === 'pie') {
-			const colors = ['yellow', 'orange', 'pink'];
-			chartConfig = {
-				type: selectedChartType,
-				data: values,
-				labels,
-				colors: colors.slice(0, values.length)
-			};
-		}
-	
-		const chart = new MyChart(chartCtx, chartConfig).init();
-		chart.draw();
-	
-		if (selectedChartType === 'bar') {
-			chart.toggleGrid(true);
-		}
-	
-		this.elements.barCanvas.style.display = 'block';
-		this.elements.downloadPNGButton.style.display = 'block';
-	}	
+      const pixelRatio = window.devicePixelRatio || 1;
+
+      const desiredWidth = 800;
+      const desiredHeight = 400;
+
+      this.elements.barCanvas.width = desiredWidth * pixelRatio;
+      this.elements.barCanvas.height = desiredHeight * pixelRatio;
+      this.elements.barCanvas.style.width = `${desiredWidth}px`;
+      this.elements.barCanvas.style.height = `${desiredHeight}px`;
+
+      const chartCtx = this.elements.barCanvas.getContext("2d");
+      chartCtx.scale(pixelRatio, pixelRatio);
+
+      const statEntries =
+        this.elements.statsContainer.querySelectorAll(".stat-entry");
+      const values = [];
+      const labels = [];
+
+      statEntries.forEach((entry) => {
+        const labelInput = entry.querySelector(
+          'input[type="text"]:first-child'
+        );
+        const valueInput = entry.querySelector('input[type="text"]:last-child');
+        const value = parseInt(valueInput.value, 10);
+
+        if (!isNaN(value)) {
+          values.push(value);
+          labels.push(labelInput.value);
+        }
+      });
+
+      if (values.length === 0 || values.length !== statEntries.length) {
+        this.elements.errorMessage.style.display = "block";
+        return;
+      } else {
+        this.elements.errorMessage.style.display = "none";
+      }
+
+      const selectedChartType = this.elements.chartType.value;
+      const chartTitle = this.elements.chartTitle.value;
+
+      let chartConfig;
+
+      if (selectedChartType === "bar") {
+        chartConfig = {
+          type: selectedChartType,
+          data: values,
+          labels,
+          color: "blue",
+        };
+      } else if (selectedChartType === "pie") {
+        const colors = ["yellow", "orange", "pink"];
+        chartConfig = {
+          type: selectedChartType,
+          data: values,
+          labels,
+          colors: colors.slice(0, values.length),
+        };
+      }
+
+      const chart = new MyChart(chartCtx, chartConfig).init();
+      chart.draw();
+
+      if (selectedChartType === "bar") {
+        chart.toggleGrid(true);
+      }
+
+      this.elements.barCanvas.style.display = "block";
+      this.elements.downloadPNGButton.style.display = "block";
+    }
 
     downloadGraphAsPNG() {
       const format = "image/png";
