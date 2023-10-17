@@ -1,6 +1,6 @@
-import { MyChart } from 'testgraphifyjs'
+import { MyChart } from "testgraphifyjs";
 
-const template = document.createElement('template')
+const template = document.createElement("template");
 template.innerHTML = `
 <style>
 #barCanvas {
@@ -150,213 +150,229 @@ button:active {
   <button id="newChart" class="hidden">New Chart</button>
   <button id="confirmChartType" class="hidden">Confirm Chart Type</button>
   <error-handler id="input-error-handler"></error-handler>
-`
+`;
 
-customElements.define('input-component', class InputComponent extends HTMLElement {
-
-    constructor () {
-      super()
-      const shadowRoot = this.attachShadow({ mode: 'open' })
-      shadowRoot.appendChild(template.content.cloneNode(true))
-
-      this.selectedChartType = 'bar'
-
-      this.errorHandler = shadowRoot.querySelector('#input-error-handler');
-      this.chartTitleElement = shadowRoot.querySelector('#chartTitle')
-      this.createGraphButton = shadowRoot.querySelector('#createGraphButton')
-      this.newChartButton = shadowRoot.querySelector('#newChart')
-      this.chartTypeElement = shadowRoot.querySelector('#chartType')
-      this.statsContainer = shadowRoot.querySelector('.stats-container')
-      this.generateGraphButton = shadowRoot.querySelector('#generateGraph')
-      this.addStatButton = shadowRoot.querySelector('.add-stat-btn')
-      this.barCanvas = shadowRoot.querySelector('#barCanvas')
-      this.errorMessage = shadowRoot.querySelector('#error-message')
-      this.downloadPNGButton = shadowRoot.querySelector('#downloadPNG')
-      this.confirmChartTypeButton = shadowRoot.querySelector('#confirmChartType')
-
-      this.hideAllElements()
-      this.chartTitleElement.style.display = 'block'
-      this.createGraphButton.style.display = 'block'
-
-      this.createGraphButton.addEventListener('click', () => {
-        if (this.chartTitleElement.value.trim() !== '') {
-          this.hideAllElements()
-          this.chartTypeElement.style.display = 'block'
-        }
-      })
-
-      this.generateGraphButton.addEventListener('click', () => {
-        this.generateGraph()
-      })
-
-      this.addStatButton.addEventListener('click', () => {
-        this.addStatInput()
-      })
-
-      this.downloadPNGButton.addEventListener('click', () => {
-        this.downloadGraphAsPNG()
-      })
-
-      this.newChartButton.addEventListener('click', () => {
-        this.newChart()
-      })
-
-      this.chartTitleElement = shadowRoot.querySelector('#chartTitle')
-      this.chartTitleElement.addEventListener('input', (e) => {
-        if (e.target.value.trim() !== '') {
-          this.revealNextStep(2)
-        }
-
-        this.chartTypeElement.addEventListener('change', () => {
-          this.confirmChartTypeButton.style.display = 'block'
-          this.revealNextStep(3)
-        })
-      })
-
-      this.confirmChartTypeButton.addEventListener('click', () => {
-        const selectedChartType = this.chartTypeElement.value
-        if (selectedChartType) {
-          this.hideAllElements()
-          this.statsContainer.style.display = 'block'
-          this.addStatButton.style.display = 'block'
-          this.generateGraphButton.style.display = 'block'
-        }
-      })
-
-      this.createGraphButton.addEventListener('click', () => {
-        if (this.chartTitleElement.value.trim() !== '') {
-          this.hideAllElements()
-          this.chartTypeElement.style.display = 'block'
-          this.confirmChartTypeButton.style.display = 'block'
-        }
-      })
-      this.chartTypeElement.addEventListener('change', () => {
-        this.selectedChartType = this.chartTypeElement.value
-        this.confirmChartTypeButton.style.display = 'block'
-        this.revealNextStep(3)
-      })
+customElements.define(
+  "input-component",
+  class InputComponent extends HTMLElement {
+    constructor() {
+		super();
+		this.attachShadow({ mode: "open" });
+		this.shadowRoot.appendChild(template.content.cloneNode(true));
+		
+		this.initializeMembers();
+		this.setupEventListeners();
+		this.initializeUI();
     }
 
-    addStatInput () {
-      const inputWrapper = document.createElement('div')
-      inputWrapper.classList.add('stat-entry')
-      const labelField = document.createElement('input')
-      labelField.type = 'text'
-      labelField.placeholder = 'Label e.g. One'
-      const inputField = document.createElement('input')
-      inputField.type = 'text'
-      inputField.placeholder = 'Value e.g. 10'
-      inputWrapper.appendChild(labelField)
-      inputWrapper.appendChild(inputField)
-      this.statsContainer.appendChild(inputWrapper)
+    initializeMembers() {
+      this.selectedChartType = "bar";
+      this.elements = {
+        errorHandler: this.shadowRoot.querySelector("#input-error-handler"),
+        chartTitle: this.shadowRoot.querySelector("#chartTitle"),
+        createGraphButton: this.shadowRoot.querySelector("#createGraphButton"),
+        newChartButton: this.shadowRoot.querySelector("#newChart"),
+        chartType: this.shadowRoot.querySelector("#chartType"),
+        statsContainer: this.shadowRoot.querySelector(".stats-container"),
+        generateGraphButton: this.shadowRoot.querySelector("#generateGraph"),
+        addStatButton: this.shadowRoot.querySelector(".add-stat-btn"),
+        barCanvas: this.shadowRoot.querySelector("#barCanvas"),
+        errorMessage: this.shadowRoot.querySelector("#error-message"),
+        downloadPNGButton: this.shadowRoot.querySelector("#downloadPNG"),
+        confirmChartTypeButton:
+          this.shadowRoot.querySelector("#confirmChartType"),
+      };
     }
 
-    generateGraph () {
-      const pixelRatio = window.devicePixelRatio || 1;
-      
-      const desiredWidth = 800;
-      const desiredHeight = 400;
-      
-      this.barCanvas.width = desiredWidth * pixelRatio;
-      this.barCanvas.height = desiredHeight * pixelRatio;
-      this.barCanvas.style.width = `${desiredWidth}px`;
-      this.barCanvas.style.height = `${desiredHeight}px`;
+    setupEventListeners() {
+      this.elements.createGraphButton.addEventListener(
+        "click",
+        this.handleGraphCreation.bind(this)
+      );
+      this.elements.generateGraphButton.addEventListener(
+        "click",
+        this.generateGraph.bind(this)
+      );
+      this.elements.addStatButton.addEventListener(
+        "click",
+        this.addStatInput.bind(this)
+      );
+      this.elements.downloadPNGButton.addEventListener(
+        "click",
+        this.downloadGraphAsPNG.bind(this)
+      );
+      this.elements.newChartButton.addEventListener(
+        "click",
+        this.newChart.bind(this)
+      );
+      this.elements.chartTitle.addEventListener(
+        "input",
+        this.handleChartTitleInput.bind(this)
+      );
+      this.elements.confirmChartTypeButton.addEventListener(
+        "click",
+        this.confirmChartType.bind(this)
+      );
+      this.elements.chartType.addEventListener(
+        "change",
+        this.handleChartTypeChange.bind(this)
+      );
+    }
 
-      const chartCtx = this.barCanvas.getContext('2d');
-      chartCtx.scale(pixelRatio, pixelRatio);
+    initializeUI() {
+      this.hideAllElements();
+      this.elements.chartTitle.style.display = "block";
+      this.elements.createGraphButton.style.display = "block";
+    }
 
-      const statEntries = this.statsContainer.querySelectorAll('.stat-entry');
-      const values = [];
-      const labels = [];
+    handleGraphCreation() {
+      if (this.elements.chartTitle.value.trim() !== "") {
+        this.hideAllElements();
+        this.elements.chartType.style.display = "block";
+        this.elements.confirmChartTypeButton.style.display = "block";
+      }
+    }
 
-      statEntries.forEach(entry => {
-          const labelInput = entry.querySelector('input[type="text"]:first-child');
-          const valueInput = entry.querySelector('input[type="text"]:last-child');
-          const value = parseInt(valueInput.value, 10);
+    handleChartTitleInput(e) {
+      if (e.target.value.trim() !== "") {
+        this.elements.confirmChartTypeButton.style.display = "block";
+      }
+    }
 
-          if (!isNaN(value)) {
-              values.push(value);
-              labels.push(labelInput.value);
-          }
+    handleChartTypeChange() {
+      this.selectedChartType = this.elements.chartType.value;
+      this.elements.confirmChartTypeButton.style.display = "block";
+    }
+
+    confirmChartType() {
+      if (this.elements.chartType.value) {
+        this.hideAllElements();
+        this.elements.statsContainer.style.display = "block";
+        this.elements.addStatButton.style.display = "block";
+        this.elements.generateGraphButton.style.display = "block";
+      }
+    }
+
+    addStatInput() {
+      const statEntry = this.createStatEntryElement();
+      this.elements.statsContainer.appendChild(statEntry);
+    }
+
+    createStatEntryElement() {
+      const wrapper = document.createElement("div");
+      wrapper.classList.add("stat-entry");
+
+      const labelField = this.createInput("text", "Label e.g. One");
+      const valueField = this.createInput("text", "Value e.g. 10");
+
+      wrapper.append(labelField, valueField);
+
+      return wrapper;
+    }
+
+    createInput(type, placeholder) {
+      const input = document.createElement("input");
+      input.type = type;
+      input.placeholder = placeholder;
+      return input;
+    }
+
+    generateGraph() {
+		const pixelRatio = window.devicePixelRatio || 1;
+		
+		const desiredWidth = 800;
+		const desiredHeight = 400;
+		
+		this.elements.barCanvas.width = desiredWidth * pixelRatio;
+		this.elements.barCanvas.height = desiredHeight * pixelRatio;
+		this.elements.barCanvas.style.width = `${desiredWidth}px`;
+		this.elements.barCanvas.style.height = `${desiredHeight}px`;
+	
+		const chartCtx = this.elements.barCanvas.getContext('2d');
+		chartCtx.scale(pixelRatio, pixelRatio);
+	
+		const statEntries = this.elements.statsContainer.querySelectorAll('.stat-entry');
+		const values = [];
+		const labels = [];
+	
+		statEntries.forEach(entry => {
+			const labelInput = entry.querySelector('input[type="text"]:first-child');
+			const valueInput = entry.querySelector('input[type="text"]:last-child');
+			const value = parseInt(valueInput.value, 10);
+	
+			if (!isNaN(value)) {
+				values.push(value);
+				labels.push(labelInput.value);
+			}
+		});
+	
+		if (values.length === 0 || values.length !== statEntries.length) {
+			this.elements.errorMessage.style.display = 'block';
+			return;
+		} else {
+			this.elements.errorMessage.style.display = 'none';
+		}
+	
+		const selectedChartType = this.elements.chartType.value;
+		const chartTitle = this.elements.chartTitle.value;
+	
+		let chartConfig;
+	
+		if (selectedChartType === 'bar') {
+			chartConfig = {
+				type: selectedChartType,
+				data: values,
+				labels,
+				color: 'blue'
+			};
+		} else if (selectedChartType === 'pie') {
+			const colors = ['yellow', 'orange', 'pink'];
+			chartConfig = {
+				type: selectedChartType,
+				data: values,
+				labels,
+				colors: colors.slice(0, values.length)
+			};
+		}
+	
+		const chart = new MyChart(chartCtx, chartConfig).init();
+		chart.draw();
+	
+		if (selectedChartType === 'bar') {
+			chart.toggleGrid(true);
+		}
+	
+		this.elements.barCanvas.style.display = 'block';
+		this.elements.downloadPNGButton.style.display = 'block';
+	}	
+
+    downloadGraphAsPNG() {
+      const format = "image/png";
+      const image = this.elements.barCanvas.toDataURL(format);
+      this.triggerDownload(image, `graph.${format.split("/")[1]}`);
+    }
+
+    triggerDownload(href, downloadName) {
+      const link = document.createElement("a");
+      link.href = href;
+      link.download = downloadName;
+      link.click();
+    }
+
+    newChart() {
+      this.elements.chartType.value = "bar";
+      this.elements.statsContainer.innerHTML = "";
+      this.addStatInput();
+      this.elements.barCanvas.classList.add("hidden");
+      this.elements.downloadPNGButton.classList.add("hidden");
+      this.elements.newChartButton.classList.add("hidden");
+      this.elements.errorMessage.style.display = "none";
+    }
+
+    hideAllElements() {
+      Object.values(this.elements).forEach((element) => {
+        element.style.display = "none";
       });
-
-      if (values.length === 0 || values.length !== statEntries.length) {
-          this.errorMessage.style.display = 'block';
-          return;
-      } else {
-          this.errorMessage.style.display = 'none';
-      }
-
-      const selectedChartType = this.chartTypeElement.value;
-      const chartTitle = this.chartTitleElement.value;
-
-      let chartConfig;
-
-      if (selectedChartType === 'bar') {
-          chartConfig = {
-              type: selectedChartType,
-              data: values,
-              labels,
-              color: 'blue'
-          };
-      } else if (selectedChartType === 'pie') {
-          const colors = ['yellow', 'orange', 'pink'];
-          chartConfig = {
-              type: selectedChartType,
-              data: values,
-              labels,
-              colors: colors.slice(0, values.length)
-          };
-      }
-
-      const chart = new MyChart(chartCtx, chartConfig).init();
-      chart.draw();
-
-      if (selectedChartType === 'bar') {
-          chart.toggleGrid(true);
-      }
-
-      this.barCanvas.style.display = 'block';
-      this.downloadPNGButton.style.display = 'block';
+    }
   }
-
-    downloadGraphAsPNG () {
-      const format = 'image/png'
-      const image = this.barCanvas.toDataURL(format)
-      const link = document.createElement('a')
-      link.href = image
-      link.download = `graph.${format.split('/')[1]}`
-      link.click()
-    }
-
-    newChart () {
-      this.chartTypeElement.value = 'bar'
-      this.statsContainer.innerHTML = ''
-      this.addStatInput()
-      this.barCanvas.classList.add('hidden')
-      this.downloadPNGButton.classList.add('hidden')
-      this.newChartButton.classList.add('hidden')
-      this.errorMessage.style.display = 'none'
-    }
-
-    revealNextStep (step) {
-      const element = this.shadowRoot.querySelector(`[data-step="${step}"]`)
-      if (element) {
-        element.classList.remove('hidden')
-      }
-    }
-
-    hideAllElements () {
-      this.chartTitleElement.style.display = 'none'
-      this.chartTypeElement.style.display = 'none'
-      this.statsContainer.style.display = 'none'
-      this.addStatButton.style.display = 'none'
-      this.generateGraphButton.style.display = 'none'
-      this.barCanvas.style.display = 'none'
-      this.downloadPNGButton.style.display = 'none'
-      this.newChartButton.style.display = 'none'
-      this.errorMessage.style.display = 'none'
-      this.createGraphButton.style.display = 'none'
-      this.confirmChartTypeButton.style.display = 'none'
-    }
-  })
+);
