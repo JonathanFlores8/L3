@@ -116,12 +116,8 @@ template.innerHTML = `
 /**
  * Custom web component for input and generation of charts.
  *
- * @augments {HTMLElement}
  */
-customElements.define('input-component', /**
-ccccccccccccccccccccccccccccccccccccccccc *
-ccccccccccccccccccccccccccccccccccccccccc */
-  class InputComponent extends HTMLElement {
+customElements.define('input-component', class InputComponent extends HTMLElement {
   /**
    * Constructor for the custom element.
    */
@@ -131,9 +127,10 @@ ccccccccccccccccccccccccccccccccccccccccc */
       const shadowRoot = this.attachShadow({ mode: 'open' })
       shadowRoot.appendChild(template.content.cloneNode(true))
 
+      this.selectedChartType = 'bar'
       // Initialize element references
       this.chartTitleElement = shadowRoot.querySelector('#chartTitle')
-      this.createGraphButton = shadowRoot.querySelector('#createGraphButton') // Initialize this before calling hideAllElements
+      this.createGraphButton = shadowRoot.querySelector('#createGraphButton')
       this.newChartButton = shadowRoot.querySelector('#newChart')
       this.chartTypeElement = shadowRoot.querySelector('#chartType')
       this.statsContainer = shadowRoot.querySelector('.stats-container')
@@ -146,7 +143,7 @@ ccccccccccccccccccccccccccccccccccccccccc */
 
       this.hideAllElements()
       this.chartTitleElement.style.display = 'block'
-      this.createGraphButton.style.display = 'block' // Show the "Create My Graph" button
+      this.createGraphButton.style.display = 'block'
 
       this.createGraphButton.addEventListener('click', () => {
         if (this.chartTitleElement.value.trim() !== '') {
@@ -198,10 +195,12 @@ ccccccccccccccccccccccccccccccccccccccccc */
         if (this.chartTitleElement.value.trim() !== '') {
           this.hideAllElements()
           this.chartTypeElement.style.display = 'block'
-          this.confirmChartTypeButton.style.display = 'block' // Display the "Confirm Chart Type" button here
+          this.confirmChartTypeButton.style.display = 'block'
         }
       })
       this.chartTypeElement.addEventListener('change', () => {
+        this.selectedChartType = this.chartTypeElement.value
+        this.confirmChartTypeButton.style.display = 'block'
         this.revealNextStep(3)
       })
     }
@@ -249,33 +248,40 @@ ccccccccccccccccccccccccccccccccccccccccc */
         this.errorMessage.style.display = 'none'
       }
 
-      const barCtx = this.barCanvas.getContext('2d')
+      const chartCtx = this.barCanvas.getContext('2d')
       const selectedChartType = this.chartTypeElement.value
       const chartTitle = this.chartTitleElement.value
 
-      const barConfig = {
-        type: selectedChartType,
-        data: values,
-        labels,
-        color: 'blue' // You can adjust this color as needed
+      let chartConfig
+
+      if (selectedChartType === 'bar') {
+        chartConfig = {
+          type: selectedChartType,
+          data: values,
+          labels,
+          color: 'blue' // You can adjust this color as needed or provide a dynamic way for user to choose
+        }
+      } else if (selectedChartType === 'pie') {
+        // We assume equal distribution of colors for simplicity.
+        // You might need to adjust this for more dynamic behavior.
+        const colors = ['yellow', 'orange', 'pink'] // Default colors, can be dynamic
+        chartConfig = {
+          type: selectedChartType,
+          data: values,
+          labels,
+          colors: colors.slice(0, values.length) // Slicing to match the data count
+        }
       }
 
-      const chart = new MyChart(barCtx, barConfig).init()
+      const chart = new MyChart(chartCtx, chartConfig).init()
       chart.draw()
-      chart.toggleGrid(true)
+
+      if (selectedChartType === 'bar') {
+        chart.toggleGrid(true)
+      }
 
       this.barCanvas.style.display = 'block'
       this.downloadPNGButton.style.display = 'block'
-    }
-
-    /**
-     * Validates the input value to ensure it's a number.
-     *
-     * @param {string} value - The value to validate.
-     * @returns {boolean} - Returns true if value is a number, else false.
-     */
-    validateInput (value) {
-      return !isNaN(parseInt(value, 10))
     }
 
     /**
