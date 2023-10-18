@@ -217,15 +217,20 @@ customElements.define(
 
     initializeUI() {
       this.hideAllElements();
-      this.elements.chartTitle.style.display = "block";
-      this.elements.createGraphButton.style.display = "block";
+      this.displayElements([
+        this.elements.chartTitle,
+        this.elements.createGraphButton,
+      ]);
     }
 
     handleGraphCreation() {
-      if (this.elements.chartTitle.value.trim() !== "") {
+      const isTitlePresent = this.elements.chartTitle.value.trim() !== "";
+      if (isTitlePresent) {
         this.hideAllElements();
-        this.elements.chartType.style.display = "block";
-        this.elements.confirmChartTypeButton.style.display = "block";
+        this.displayElements([
+          this.elements.chartType,
+          this.elements.confirmChartTypeButton,
+        ]);
       }
     }
 
@@ -249,8 +254,7 @@ customElements.define(
     }
 
     createStatEntryElement() {
-      const wrapper = document.createElement("div");
-      wrapper.classList.add("stat-entry");
+      const wrapper = this.createWrapperDivWithClass("stat-entry");
 
       const labelField = this.createInput("text", "Label e.g. One");
       const valueField = this.createInput("text", "Value e.g. 10");
@@ -265,6 +269,12 @@ customElements.define(
       input.type = type;
       input.placeholder = placeholder;
       return input;
+    }
+
+    createWrapperDivWithClass(className) {
+      const div = document.createElement("div");
+      div.classList.add(className);
+      return div;
     }
 
     generateGraph() {
@@ -286,8 +296,10 @@ customElements.define(
       const values = [];
       const labels = [];
 
-	  statEntries.forEach((entry) => {
-        const labelInput = entry.querySelector('input[type="text"]:first-child');
+      statEntries.forEach((entry) => {
+        const labelInput = entry.querySelector(
+          'input[type="text"]:first-child'
+        );
         const valueInput = entry.querySelector('input[type="text"]:last-child');
         const value = parseFloat(valueInput.value);
 
@@ -335,7 +347,7 @@ customElements.define(
 
       this.elements.barCanvas.style.display = "block";
       this.elements.downloadPNGButton.style.display = "block";
-	  this.elements.newChartButton.style.display = "block";
+      this.elements.newChartButton.style.display = "block";
     }
 
     downloadGraphAsPNG() {
@@ -352,12 +364,20 @@ customElements.define(
     }
 
     newChart() {
-		location.reload();
-	}	
+      location.reload();
+    }
 
     hideAllElements() {
-      Object.values(this.elements).forEach((element) => {
-        element.style.display = "none";
+      this.modifyDisplayOfElements(Object.values(this.elements), "none");
+    }
+
+    displayElements(elements) {
+      this.modifyDisplayOfElements(elements, "block");
+    }
+	
+    modifyDisplayOfElements(elements, displayType) {
+      elements.forEach((element) => {
+        element.style.display = displayType;
       });
     }
   }
