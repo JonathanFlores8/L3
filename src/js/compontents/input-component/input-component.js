@@ -121,8 +121,6 @@ button:active {
 }
 </style>
 
-
-
 <div class="main-container">
   <h1>Create Your Chart</h1>
   <div class="title-box">
@@ -149,6 +147,7 @@ button:active {
   <button id="downloadPNG" class="hidden">Download as PNG</button>
   <button id="newChart" class="hidden">New Chart</button>
   <button id="confirmChartType" class="hidden">Confirm Chart Type</button>
+  <chart-buttons></chart-buttons>
   <error-handler id="input-error-handler"></error-handler>
 `;
 
@@ -163,6 +162,7 @@ customElements.define(
       this.initializeMembers();
       this.setupEventListeners();
       this.initializeUI();
+      
     }
 
     initializeMembers() {
@@ -184,7 +184,7 @@ customElements.define(
       };
     }
 
-    setupEventListeners() {
+    setupEventListeners = () => {
       this.elements.createGraphButton.addEventListener(
         "click",
         this.handleGraphCreation.bind(this)
