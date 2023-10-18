@@ -286,14 +286,12 @@ customElements.define(
       const values = [];
       const labels = [];
 
-      statEntries.forEach((entry) => {
-        const labelInput = entry.querySelector(
-          'input[type="text"]:first-child'
-        );
+	  statEntries.forEach((entry) => {
+        const labelInput = entry.querySelector('input[type="text"]:first-child');
         const valueInput = entry.querySelector('input[type="text"]:last-child');
-        const value = parseInt(valueInput.value, 10);
+        const value = parseFloat(valueInput.value);
 
-        if (!isNaN(value)) {
+        if (!isNaN(value) && labelInput.value.trim() !== "") {
           values.push(value);
           labels.push(labelInput.value);
         }
