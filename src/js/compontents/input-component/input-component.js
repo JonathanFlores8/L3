@@ -1,4 +1,5 @@
 import { MyChart } from "testgraphifyjs";
+import "../custom-button/index.js";
 
 const template = document.createElement("template");
 template.innerHTML = `
@@ -32,26 +33,6 @@ input, select {
 
 input:focus, select:focus {
     border-color: #007BFF;
-}
-
-button {
-    padding: 10px 15px;
-    background-color: #85bb65;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.3s;
-    margin-top: 10px;
-}
-
-button:hover {
-    background-color: #83a96a;
-    transform: translateY(-1px);
-}
-
-button:active {
-    transform: translateY(0);
 }
 
 .error-message {
@@ -124,8 +105,8 @@ button:active {
 <div class="main-container">
   <h1>Create Your Chart</h1>
   <div class="title-box">
-  <input type="text" id="chartTitle" placeholder="Enter Chart Title" />
-  <button id="createGraphButton">Create My Graph</button>
+    <input type="text" id="chartTitle" placeholder="Enter Chart Title" />
+    <custom-button label="Create My Graph" id="createGraphButton" action="handleGraphCreation"></custom-button>
   </div>
   <select id="chartType">
     <option value="bar">Bar Chart</option>
@@ -136,19 +117,21 @@ button:active {
     <div class="stat-entry">
       <input type="text" placeholder="Label e.g. One">
       <input type="text" placeholder="Value e.g. 10">
-    </div>
+      <custom-button label="Add Stat" classes="add-stat-btn" action="addStatInput"></custom-button>
+    </div> 
   </div>
-
-  <button class="add-stat-btn">Add Stat</button>
-  <button id="generateGraph">Generate Graph</button>
   <p id="error-message">Invalid input. Please enter numbers.</p>
 
   <canvas id="barCanvas" class="hidden"></canvas>
-  <button id="downloadPNG" class="hidden">Download as PNG</button>
-  <button id="newChart" class="hidden">New Chart</button>
-  <button id="confirmChartType" class="hidden">Confirm Chart Type</button>
+  <custom-button label="Generate Graph" id="generateGraph" action="generateGraph"></custom-button>
+  <custom-button label="Download as PNG" id="downloadPNG" action="downloadGraphAsPNG"></custom-button>
+  <custom-button label="New Chart" id="newChart" action="newChart"></custom-button>
+  <custom-button label="Confirm Chart Type" id="confirmChartType" action="confirmChartType"></custom-button>
+
   <chart-buttons></chart-buttons>
   <error-handler id="input-error-handler"></error-handler>
+</div>
+
 `;
 
 customElements.define(
@@ -162,27 +145,25 @@ customElements.define(
       this.initializeMembers();
       this.setupEventListeners();
       this.initializeUI();
-      
     }
 
     initializeMembers() {
       this.selectedChartType = "bar";
       this.elements = {
-        errorHandler: this.shadowRoot.querySelector("#input-error-handler"),
-        chartTitle: this.shadowRoot.querySelector("#chartTitle"),
-        createGraphButton: this.shadowRoot.querySelector("#createGraphButton"),
-        newChartButton: this.shadowRoot.querySelector("#newChart"),
-        chartType: this.shadowRoot.querySelector("#chartType"),
-        statsContainer: this.shadowRoot.querySelector(".stats-container"),
-        generateGraphButton: this.shadowRoot.querySelector("#generateGraph"),
-        addStatButton: this.shadowRoot.querySelector(".add-stat-btn"),
-        barCanvas: this.shadowRoot.querySelector("#barCanvas"),
-        errorMessage: this.shadowRoot.querySelector("#error-message"),
-        downloadPNGButton: this.shadowRoot.querySelector("#downloadPNG"),
-        confirmChartTypeButton:
-          this.shadowRoot.querySelector("#confirmChartType"),
+          errorHandler: this.shadowRoot.querySelector("#input-error-handler"),
+          chartTitle: this.shadowRoot.querySelector("#chartTitle"),
+          createGraphButton: this.shadowRoot.querySelector("custom-button[id='createGraphButton']"),
+          newChartButton: this.shadowRoot.querySelector("custom-button[id='newChart']"),
+          chartType: this.shadowRoot.querySelector("#chartType"),
+          statsContainer: this.shadowRoot.querySelector(".stats-container"),
+          generateGraphButton: this.shadowRoot.querySelector("custom-button[id='generateGraph']"),
+          addStatButton: this.shadowRoot.querySelector("custom-button[action='addStatInput']"),
+          barCanvas: this.shadowRoot.querySelector("#barCanvas"),
+          errorMessage: this.shadowRoot.querySelector("#error-message"),
+          downloadPNGButton: this.shadowRoot.querySelector("custom-button[id='downloadPNG']"),
+          confirmChartTypeButton: this.shadowRoot.querySelector("custom-button[id='confirmChartType']")
       };
-    }
+  }  
 
     setupEventListeners = () => {
       this.elements.createGraphButton.addEventListener(
@@ -213,7 +194,7 @@ customElements.define(
         "change",
         this.handleChartTypeChange.bind(this)
       );
-    }
+    };
 
     initializeUI() {
       this.hideAllElements();
@@ -297,17 +278,20 @@ customElements.define(
       const labels = [];
 
       statEntries.forEach((entry) => {
-        const labelInput = entry.querySelector(
-          'input[type="text"]:first-child'
-        );
-        const valueInput = entry.querySelector('input[type="text"]:last-child');
+        const inputs = entry.querySelectorAll('input[type="text"]');
+        const labelInput = inputs[0];
+        const valueInput = inputs[1];
+    
+        if (!labelInput || !valueInput) return;
+    
         const value = parseFloat(valueInput.value);
-
+    
         if (!isNaN(value) && labelInput.value.trim() !== "") {
-          values.push(value);
-          labels.push(labelInput.value);
+            values.push(value);
+            labels.push(labelInput.value);
         }
-      });
+    });
+    
 
       if (values.length === 0 || values.length !== statEntries.length) {
         this.elements.errorMessage.style.display = "block";
@@ -374,7 +358,7 @@ customElements.define(
     displayElements(elements) {
       this.modifyDisplayOfElements(elements, "block");
     }
-	
+
     modifyDisplayOfElements(elements, displayType) {
       elements.forEach((element) => {
         element.style.display = displayType;
