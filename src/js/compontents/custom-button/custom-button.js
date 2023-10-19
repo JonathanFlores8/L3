@@ -6,7 +6,7 @@ buttonTemplate.innerHTML = `
 }
 
 button {
-  background-color: #007bff;
+  background-color: #657F5F;
   color: #fff;
   padding: 10px 20px;
   border: none;
@@ -16,14 +16,17 @@ button {
   transition: background-color 0.2s, transform 0.2s;
 }
 
+button:focus {
+  outline: 2px solid #111510; /* You can change the color as per your preference */
+}
+
 button:hover {
-  background-color: #0056b3;
+  background-color: #556A4F;
 }
 
 button:active {
   transform: scale(0.98);
 }
-
 </style>
 
 <button></button>

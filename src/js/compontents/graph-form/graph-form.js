@@ -2,45 +2,62 @@ const graphFormTemplate = document.createElement("template");
 graphFormTemplate.innerHTML = `
   <style>
     h2 {
-  margin-bottom: 15px;
-  color: #333;
-  text-align: center;
-}
+        margin-bottom: 15px;
+        color: #333;
+        text-align: center;
+    }
 
-   .form-container {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+    .form-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;       
+        justify-content: center;   
+        gap: 10px;
+    }
 
-input[type="text"], input[type="radio"] + label {
-  padding: 10px 15px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
-  transition: border-color 0.2s;
-}
+    input[type="text"], select {
+        padding: 10px 15px;
+        border: 2px solid #111510;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: border-color 0.2s;
+    }
 
-input[type="text"]:focus {
-  border-color: #007bff;
-  outline: none;
-}
+    input[type="text"]:focus, select:focus {
+        border-color: #0a0d0f;
+        outline: none;
+        box-shadow: 0 0 0 1px #0a0d0f;
+    }
 
-input[type="radio"] + label {
-  padding: 10px 15px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  cursor: pointer;
-  display: inline-block;
-  margin-right: 10px;
-}
+    select {
+        background-color: #fff;
+    }
 
-input[type="radio"]:checked + label {
-  background-color: #007bff;
-  color: #fff;
-  border-color: #007bff;
-}
-  </style>
+    #addMore {
+        background-color: #657F5F;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.2s, transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+        margin-top: 10px;
+    }
+
+    #addMore:focus {
+        outline: none;
+        border: 2px solid #111510;
+    }
+
+    #addMore:hover {
+        background-color: #556A4F;
+    }
+
+    #addMore:active {
+        transform: scale(0.98);
+    }
+</style>
 
   <div class="form-container">
     <!-- Dynamic data inputs will be added based on form type -->
@@ -77,14 +94,16 @@ customElements.define(
     }
 
     setupTypeForm() {
-      const formContainer = this.shadowRoot.querySelector(".form-container");
-      formContainer.innerHTML = `
+        const formContainer = this.shadowRoot.querySelector(".form-container");
+        formContainer.innerHTML = `
             <h2>Step 2: Choose Graph Type</h2>
-            <label><input type="radio" name="graphType" value="bar"> Bar Graph</label>
-            <label><input type="radio" name="graphType" value="pie"> Pie Chart</label>
+            <select id="chartType">
+                <option value="bar">Bar Graph</option>
+                <option value="pie">Pie Chart</option>
+            </select>
             <custom-button label="Confirm"></custom-button>
         `;
-    }
+    }    
 
     setupTitleForm() {
       const formContainer = this.shadowRoot.querySelector(".form-container");
@@ -109,13 +128,15 @@ customElements.define(
         <custom-button label="Generate Graph"></custom-button>
       `;
 
-      this.shadowRoot.getElementById("addMore").addEventListener("click", this.addMoreInputs.bind(this));
+      this.shadowRoot
+        .getElementById("addMore")
+        .addEventListener("click", this.addMoreInputs.bind(this));
     }
 
     addMoreInputs() {
-      const dataEntriesDiv = this.shadowRoot.querySelector('.data-entries');
-      const newEntryDiv = document.createElement('div');
-      newEntryDiv.className = 'data-entry';
+      const dataEntriesDiv = this.shadowRoot.querySelector(".data-entries");
+      const newEntryDiv = document.createElement("div");
+      newEntryDiv.className = "data-entry";
       newEntryDiv.innerHTML = `
         <input type="text" class="label-input" placeholder="Enter label...">
         <input type="text" class="data-input" placeholder="Enter data...">
@@ -132,16 +153,16 @@ customElements.define(
           eventData.title = this.shadowRoot.querySelector("input").value;
           break;
         case "graphType":
-          const selectedType = this.shadowRoot.querySelector(
-            'input[name="graphType"]:checked'
-          ).value;
+            const selectedType = this.shadowRoot.getElementById("chartType").value;
           eventData.type = selectedType;
           break;
         case "data":
-          const labelInputs = this.shadowRoot.querySelectorAll('.label-input');
-          const dataInputs = this.shadowRoot.querySelectorAll('.data-input');
-          const labels = Array.from(labelInputs).map(input => input.value);
-          const data = Array.from(dataInputs).map(input => Number(input.value));
+          const labelInputs = this.shadowRoot.querySelectorAll(".label-input");
+          const dataInputs = this.shadowRoot.querySelectorAll(".data-input");
+          const labels = Array.from(labelInputs).map((input) => input.value);
+          const data = Array.from(dataInputs).map((input) =>
+            Number(input.value)
+          );
           eventData.labels = labels;
           eventData.data = data;
           break;

@@ -47,6 +47,12 @@ customElements.define(
           this.handleDataSubmission(detail);
         }
       });
+      this.addEventListener("resetGraph", this.resetEverything.bind(this));
+    }
+
+    resetEverything() {
+        // Implement reset logic here
+      location.reload();
     }
 
     setupTitleForm() {
