@@ -35,10 +35,10 @@ customElements.define(
     }
 
     connectedCallback() {
-      this.renderButton();
+      this.configureButtonAttributes();
     }
 
-    renderButton() {
+    configureButtonAttributes() {
       const button = this.shadowRoot.querySelector("button");
       button.textContent = this.getAttribute("label") || "";
       button.id = this.getAttribute("id") || "";
