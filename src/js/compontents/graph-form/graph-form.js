@@ -6,11 +6,14 @@ graphFormTemplate.innerHTML = `
       flex-direction: column;
       gap: 10px;
     }
+    .data-entry {
+      display: flex;
+      gap: 10px;
+    }
   </style>
 
   <div class="form-container">
-    <input type="text" placeholder="Enter graph data...">
-    <custom-button label="Submit"></custom-button>
+    <!-- Dynamic data inputs will be added based on form type -->
   </div>
 `;
 
@@ -53,17 +56,38 @@ customElements.define(
     }
 
     setupTitleForm() {
-      const inputField = this.shadowRoot.querySelector("input");
-      inputField.placeholder = "Enter graph title...";
+      const formContainer = this.shadowRoot.querySelector(".form-container");
+      formContainer.innerHTML = `
+        <input type="text" placeholder="Enter graph title...">
+        <custom-button label="Submit"></custom-button>
+      `;
     }
 
     setupDataForm() {
       const formContainer = this.shadowRoot.querySelector(".form-container");
       formContainer.innerHTML = `
-            <input type="text" placeholder="Enter labels (comma-separated)">
-            <input type="text" placeholder="Enter data (comma-separated)">
-            <custom-button label="Generate Graph"></custom-button>
-        `;
+        <div class="data-entries">
+          <div class="data-entry">
+            <input type="text" class="label-input" placeholder="Enter label...">
+            <input type="text" class="data-input" placeholder="Enter data...">
+          </div>
+        </div>
+        <button id="addMore">Add more</button>
+        <custom-button label="Generate Graph"></custom-button>
+      `;
+
+      this.shadowRoot.getElementById("addMore").addEventListener("click", this.addMoreInputs.bind(this));
+    }
+
+    addMoreInputs() {
+      const dataEntriesDiv = this.shadowRoot.querySelector('.data-entries');
+      const newEntryDiv = document.createElement('div');
+      newEntryDiv.className = 'data-entry';
+      newEntryDiv.innerHTML = `
+        <input type="text" class="label-input" placeholder="Enter label...">
+        <input type="text" class="data-input" placeholder="Enter data...">
+      `;
+      dataEntriesDiv.appendChild(newEntryDiv);
     }
 
     handleSubmit() {
@@ -81,16 +105,10 @@ customElements.define(
           eventData.type = selectedType;
           break;
         case "data":
-          const labelsInput = this.shadowRoot.querySelector(
-            'input[placeholder="Enter labels (comma-separated)"]'
-          );
-          const dataInput = this.shadowRoot.querySelector(
-            'input[placeholder="Enter data (comma-separated)"]'
-          );
-
-          const labels = labelsInput ? labelsInput.value.split(",") : [];
-          const data = dataInput ? dataInput.value.split(",").map(Number) : [];
-
+          const labelInputs = this.shadowRoot.querySelectorAll('.label-input');
+          const dataInputs = this.shadowRoot.querySelectorAll('.data-input');
+          const labels = Array.from(labelInputs).map(input => input.value);
+          const data = Array.from(dataInputs).map(input => Number(input.value));
           eventData.labels = labels;
           eventData.data = data;
           break;
