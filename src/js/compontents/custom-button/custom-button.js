@@ -1,25 +1,29 @@
 const buttonTemplate = document.createElement("template");
 buttonTemplate.innerHTML = `
 <style>
-  button {
-    padding: 10px 15px;
-    background-color: #85bb65;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.3s;
-    margin-top: 10px;
+  custom-button {
+  display: inline-block;
+}
+
+button {
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s, transform 0.2s;
 }
 
 button:hover {
-    background-color: #83a96a;
-    transform: translateY(-1px);
+  background-color: #0056b3;
 }
 
 button:active {
-    transform: translateY(0);
+  transform: scale(0.98);
 }
+
 </style>
 
 <button></button>

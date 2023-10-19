@@ -1,15 +1,45 @@
 const graphFormTemplate = document.createElement("template");
 graphFormTemplate.innerHTML = `
   <style>
-    .form-container {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .data-entry {
-      display: flex;
-      gap: 10px;
-    }
+    h2 {
+  margin-bottom: 15px;
+  color: #333;
+  text-align: center;
+}
+
+   .form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+input[type="text"], input[type="radio"] + label {
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+input[type="text"]:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+input[type="radio"] + label {
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-block;
+  margin-right: 10px;
+}
+
+input[type="radio"]:checked + label {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
   </style>
 
   <div class="form-container">
@@ -49,6 +79,7 @@ customElements.define(
     setupTypeForm() {
       const formContainer = this.shadowRoot.querySelector(".form-container");
       formContainer.innerHTML = `
+            <h2>Step 2: Choose Graph Type</h2>
             <label><input type="radio" name="graphType" value="bar"> Bar Graph</label>
             <label><input type="radio" name="graphType" value="pie"> Pie Chart</label>
             <custom-button label="Confirm"></custom-button>
@@ -58,6 +89,7 @@ customElements.define(
     setupTitleForm() {
       const formContainer = this.shadowRoot.querySelector(".form-container");
       formContainer.innerHTML = `
+        <h2>Step 1: Enter Graph Title</h2>
         <input type="text" placeholder="Enter graph title...">
         <custom-button label="Submit"></custom-button>
       `;
@@ -66,6 +98,7 @@ customElements.define(
     setupDataForm() {
       const formContainer = this.shadowRoot.querySelector(".form-container");
       formContainer.innerHTML = `
+        <h2>Step 3: Enter Graph Data</h2>
         <div class="data-entries">
           <div class="data-entry">
             <input type="text" class="label-input" placeholder="Enter label...">

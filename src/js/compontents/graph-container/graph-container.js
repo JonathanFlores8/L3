@@ -2,10 +2,16 @@ const graphContainerTemplate = document.createElement("template");
 graphContainerTemplate.innerHTML = `
   <style>
     .container {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  max-width: 800px;
+  margin: 20px auto;
+}
   </style>
   <div class="container">
   </div>
