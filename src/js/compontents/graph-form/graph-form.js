@@ -57,6 +57,11 @@ graphFormTemplate.innerHTML = `
     #addMore:active {
         transform: scale(0.98);
     }
+
+    .label-input, .data-input {
+        margin-bottom: 10px; 
+    }
+
 </style>
 
   <div class="form-container">
@@ -94,22 +99,24 @@ customElements.define(
     }
 
     setupTypeForm() {
-        const formContainer = this.shadowRoot.querySelector(".form-container");
-        formContainer.innerHTML = `
+      const formContainer = this.shadowRoot.querySelector(".form-container");
+      formContainer.innerHTML = `
             <h2>Step 2: Choose Graph Type</h2>
             <select id="chartType">
                 <option value="bar">Bar Graph</option>
                 <option value="pie">Pie Chart</option>
             </select>
+            <error-message id="typeError"></error-message>
             <custom-button label="Confirm"></custom-button>
         `;
-    }    
+    }
 
     setupTitleForm() {
       const formContainer = this.shadowRoot.querySelector(".form-container");
       formContainer.innerHTML = `
         <h2>Step 1: Enter Graph Title</h2>
-        <input type="text" placeholder="Enter graph title...">
+        <input type="text" placeholder="Enter graph title..." id="graphTitleInput">
+        <error-message id="titleError"></error-message>
         <custom-button label="Submit"></custom-button>
       `;
     }
@@ -124,6 +131,7 @@ customElements.define(
             <input type="text" class="data-input" placeholder="Enter data...">
           </div>
         </div>
+        <error-message id="dataError"></error-message>
         <button id="addMore">Add more</button>
         <custom-button label="Generate Graph"></custom-button>
       `;
@@ -147,34 +155,74 @@ customElements.define(
     handleSubmit() {
       const formType = this.getAttribute("type");
       let eventData = {};
+      let hasError = false; // Flag to check if any validation error occurs
 
       switch (formType) {
         case "title":
-          eventData.title = this.shadowRoot.querySelector("input").value;
+          const title = this.shadowRoot.querySelector("input").value;
+          if (title.trim() === "") {
+            // If title is empty or just whitespace
+            const titleError = this.shadowRoot.querySelector("#titleError");
+            titleError.textContent = "Graph title is required.";
+            titleError.show();
+            hasError = true;
+          } else {
+            eventData.title = title;
+          }
           break;
+
         case "graphType":
-            const selectedType = this.shadowRoot.getElementById("chartType").value;
-          eventData.type = selectedType;
+          const selectedType =
+            this.shadowRoot.getElementById("chartType").value;
+          if (!selectedType) {
+            // If no type is selected
+            const typeError = this.shadowRoot.querySelector("#typeError");
+            typeError.textContent = "Please select a graph type.";
+            typeError.show();
+            hasError = true;
+          } else {
+            eventData.type = selectedType;
+          }
           break;
+
         case "data":
           const labelInputs = this.shadowRoot.querySelectorAll(".label-input");
           const dataInputs = this.shadowRoot.querySelectorAll(".data-input");
-          const labels = Array.from(labelInputs).map((input) => input.value);
-          const data = Array.from(dataInputs).map((input) =>
-            Number(input.value)
-          );
-          eventData.labels = labels;
-          eventData.data = data;
+
+          // Checking for any empty fields
+          labelInputs.forEach((input, index) => {
+            if (
+              input.value.trim() === "" ||
+              isNaN(Number(dataInputs[index].value))
+            ) {
+              const dataError = this.shadowRoot.querySelector("#dataError");
+              dataError.textContent =
+                "Please ensure all fields are filled correctly.";
+              dataError.show();
+              hasError = true;
+            }
+          });
+
+          if (!hasError) {
+            const labels = Array.from(labelInputs).map((input) => input.value);
+            const data = Array.from(dataInputs).map((input) =>
+              Number(input.value)
+            );
+            eventData.labels = labels;
+            eventData.data = data;
+          }
           break;
       }
 
-      this.dispatchEvent(
-        new CustomEvent("formDataChange", {
-          detail: eventData,
-          bubbles: true,
-          composed: true,
-        })
-      );
+      if (!hasError) {
+        this.dispatchEvent(
+          new CustomEvent("formDataChange", {
+            detail: eventData,
+            bubbles: true,
+            composed: true,
+          })
+        );
+      }
     }
   }
 );
