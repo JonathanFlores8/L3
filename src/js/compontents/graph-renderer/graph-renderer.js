@@ -3,7 +3,6 @@ import { MyChart } from "testgraphifyjs";
 const graphRendererTemplate = document.createElement("template");
 graphRendererTemplate.innerHTML = `
    <style>
-
     :host {
       display: flex;
       flex-direction: column;
@@ -46,7 +45,7 @@ graphRendererTemplate.innerHTML = `
       transform: scale(0.98);
     }
   </style>
-  
+
   <canvas id="graphCanvas" width="600" height="400"></canvas>
   <div class="buttons-container">
     <button id="downloadBtn">Download as PNG</button>
@@ -67,7 +66,16 @@ customElements.define(
     }
 
     connectedCallback() {
-      this.initChart();
+      try {
+        this.initChart();
+        this.addEventListeners();
+      } catch (error) {
+        console.error("Error initializing the graph renderer:", error);
+        this.renderError("Failed to initialize the graph.");
+      }
+    }
+
+    addEventListeners() {
       this.shadowRoot
         .getElementById("downloadBtn")
         .addEventListener("click", this.downloadGraph.bind(this));
@@ -77,11 +85,16 @@ customElements.define(
     }
 
     downloadGraph() {
-      const canvas = this.shadowRoot.getElementById("graphCanvas");
-      const link = document.createElement("a");
-      link.href = canvas.toDataURL("image/png");
-      link.download = "graph.png";
-      link.click();
+      try {
+        const canvas = this.shadowRoot.getElementById("graphCanvas");
+        const link = document.createElement("a");
+        link.href = canvas.toDataURL("image/png");
+        link.download = "graph.png";
+        link.click();
+      } catch (error) {
+        console.error("Error downloading the graph:", error);
+        this.renderError("Failed to download the graph.");
+      }
     }
 
     resetGraph() {
@@ -105,41 +118,53 @@ customElements.define(
     }
 
     initChart() {
-      const ctx = this.shadowRoot
-        .getElementById("graphCanvas")
-        .getContext("2d");
+      try {
+        const ctx = this.shadowRoot
+          .getElementById("graphCanvas")
+          .getContext("2d");
 
-      const chartType = this.getAttribute("type") || "bar";
-      const data = this.getAttribute("data")
-        ? this.getAttribute("data").split(",").map(Number)
-        : [];
-      const labels = this.getAttribute("labels")
-        ? this.getAttribute("labels").split(",")
-        : [];
-
-      let config = {};
-
-      if (chartType === "bar") {
-        config = {
-          type: "bar",
-          data: data,
-          labels: labels,
-          color: this.getAttribute("color") || "blue",
-        };
-      } else if (chartType === "pie") {
-        const colors = this.getAttribute("colors")
-          ? this.getAttribute("colors").split(",")
+        const chartType = this.getAttribute("type") || "bar";
+        const data = this.getAttribute("data")
+          ? this.getAttribute("data").split(",").map(Number)
           : [];
-        config = {
-          type: "pie",
-          data: data,
-          labels: labels,
-          colors: colors.length ? colors : ["yellow", "orange", "pink"], // default colors if not provided
-        };
-      }
+        const labels = this.getAttribute("labels")
+          ? this.getAttribute("labels").split(",")
+          : [];
 
-      this.chart = new MyChart(ctx, config).init();
-      this.chart.draw();
+        let config = {};
+
+        if (chartType === "bar") {
+          config = {
+            type: "bar",
+            data: data,
+            labels: labels,
+            color: this.getAttribute("color") || "blue",
+          };
+        } else if (chartType === "pie") {
+          const colors = this.getAttribute("colors")
+            ? this.getAttribute("colors").split(",")
+            : [];
+          config = {
+            type: "pie",
+            data: data,
+            labels: labels,
+            colors: colors.length ? colors : ["yellow", "orange", "pink"],
+          };
+        }
+
+        this.chart = new MyChart(ctx, config).init();
+        this.chart.draw();
+      } catch (error) {
+        console.error("Error initializing the graph:", error);
+        this.renderError("Failed to initialize the graph.");
+      }
+    }
+
+    renderError(message) {
+      const errorElement = document.createElement("div");
+      errorElement.style.color = "red";
+      errorElement.textContent = message;
+      this.shadowRoot.appendChild(errorElement);
     }
 
     set data(newData) {

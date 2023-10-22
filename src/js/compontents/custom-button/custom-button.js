@@ -17,7 +17,7 @@ button {
 }
 
 button:focus {
-  outline: 2px solid #111510; /* You can change the color as per your preference */
+  outline: 2px solid #111510;
 }
 
 button:hover {

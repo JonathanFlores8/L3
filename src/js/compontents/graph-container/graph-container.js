@@ -51,7 +51,7 @@ customElements.define(
     }
 
     resetEverything() {
-        // Implement reset logic here
+        // Implement reset logic here to reset the graph application.
       location.reload();
     }
 

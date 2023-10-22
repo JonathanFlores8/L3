@@ -154,67 +154,20 @@ customElements.define(
 
     handleSubmit() {
       const formType = this.getAttribute("type");
-      let eventData = {};
-      let hasError = false; // Flag to check if any validation error occurs
+      const eventData = {};
+      try {
+        switch (formType) {
+          case "title":
+            this.validateAndSetEventDataForTitle(eventData);
+            break;
+          case "graphType":
+            this.validateAndSetEventDataForGraphType(eventData);
+            break;
+          case "data":
+            this.validateAndSetEventDataForData(eventData);
+            break;
+        }
 
-      switch (formType) {
-        case "title":
-          const title = this.shadowRoot.querySelector("input").value;
-          if (title.trim() === "") {
-            // If title is empty or just whitespace
-            const titleError = this.shadowRoot.querySelector("#titleError");
-            titleError.textContent = "Graph title is required.";
-            titleError.show();
-            hasError = true;
-          } else {
-            eventData.title = title;
-          }
-          break;
-
-        case "graphType":
-          const selectedType =
-            this.shadowRoot.getElementById("chartType").value;
-          if (!selectedType) {
-            // If no type is selected
-            const typeError = this.shadowRoot.querySelector("#typeError");
-            typeError.textContent = "Please select a graph type.";
-            typeError.show();
-            hasError = true;
-          } else {
-            eventData.type = selectedType;
-          }
-          break;
-
-        case "data":
-          const labelInputs = this.shadowRoot.querySelectorAll(".label-input");
-          const dataInputs = this.shadowRoot.querySelectorAll(".data-input");
-
-          // Checking for any empty fields
-          labelInputs.forEach((input, index) => {
-            if (
-              input.value.trim() === "" ||
-              isNaN(Number(dataInputs[index].value))
-            ) {
-              const dataError = this.shadowRoot.querySelector("#dataError");
-              dataError.textContent =
-                "Please ensure all fields are filled correctly.";
-              dataError.show();
-              hasError = true;
-            }
-          });
-
-          if (!hasError) {
-            const labels = Array.from(labelInputs).map((input) => input.value);
-            const data = Array.from(dataInputs).map((input) =>
-              Number(input.value)
-            );
-            eventData.labels = labels;
-            eventData.data = data;
-          }
-          break;
-      }
-
-      if (!hasError) {
         this.dispatchEvent(
           new CustomEvent("formDataChange", {
             detail: eventData,
@@ -222,6 +175,53 @@ customElements.define(
             composed: true,
           })
         );
+      } catch (error) {
+        console.error(error);
+        this.showErrorMessage(formType, error.message);
+      }
+    }
+
+    validateAndSetEventDataForTitle(eventData) {
+      const title = this.shadowRoot.querySelector("input").value.trim();
+      if (!title) {
+        throw new Error("Graph title is required.");
+      }
+      eventData.title = title;
+    }
+
+    validateAndSetEventDataForGraphType(eventData) {
+      const selectedType = this.shadowRoot.getElementById("chartType").value;
+      if (!selectedType) {
+        throw new Error("Please select a graph type.");
+      }
+      eventData.type = selectedType;
+    }
+
+    validateAndSetEventDataForData(eventData) {
+      const labelInputs = this.shadowRoot.querySelectorAll(".label-input");
+      const dataInputs = this.shadowRoot.querySelectorAll(".data-input");
+      const labels = [];
+      const data = [];
+
+      labelInputs.forEach((input, index) => {
+        const label = input.value.trim();
+        const dataValue = Number(dataInputs[index].value);
+        if (!label || isNaN(dataValue)) {
+          throw new Error("Please ensure all fields are filled correctly.");
+        }
+        labels.push(label);
+        data.push(dataValue);
+      });
+
+      eventData.labels = labels;
+      eventData.data = data;
+    }
+
+    showErrorMessage(formType, message) {
+      const errorElement = this.shadowRoot.querySelector(`#${formType}Error`);
+      if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.show();
       }
     }
   }
