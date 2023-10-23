@@ -51,7 +51,7 @@ This renders input fields for the user to enter labels and corresponding data va
 
 ## Events
 
-- `formDataChange`: Dispatched when the user submits the form, carrying the user input data as event details. 
+- `formDataChange`: Dispatched when the user submits the form, carrying the user input data as event details.
 
 ## Styling
 
@@ -59,6 +59,6 @@ The `GraphForm` component comes with predefined styling, ensuring a clean and us
 
 ```css
 graph-form .form-container {
-    /* your custom styles here */
+  /* your custom styles here */
 }
 ```

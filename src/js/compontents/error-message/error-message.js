@@ -1,4 +1,4 @@
-const errorComponentTemplate = document.createElement("template");
+const errorComponentTemplate = document.createElement('template')
 errorComponentTemplate.innerHTML = `
   <style>
     .error-container {
@@ -11,29 +11,31 @@ errorComponentTemplate.innerHTML = `
   <div class="error-container">
     <slot></slot>
   </div>
-`;
+`
 
 customElements.define(
-  "error-message",
+  'error-message',
   class ErrorMessage extends HTMLElement {
     constructor() {
-      super();
-      this.attachShadow({ mode: "open" });
-      this.shadowRoot.appendChild(errorComponentTemplate.content.cloneNode(true));
+      super()
+      this.attachShadow({ mode: 'open' })
+      this.shadowRoot.appendChild(
+        errorComponentTemplate.content.cloneNode(true),
+      )
     }
 
     connectedCallback() {
       if (this.textContent) {
-        this.show();
+        this.show()
       }
     }
 
     show() {
-      this.shadowRoot.querySelector('.error-container').style.display = 'block';
+      this.shadowRoot.querySelector('.error-container').style.display = 'block'
     }
 
     hide() {
-      this.shadowRoot.querySelector('.error-container').style.display = 'none';
+      this.shadowRoot.querySelector('.error-container').style.display = 'none'
     }
-  }
-);
+  },
+)

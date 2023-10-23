@@ -8,13 +8,13 @@
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview",
-    "lint": "npx eslint ./src || exit 0",
-    "lint:fix": "npx eslint ./src --fix || exit 0"
+    "format": "prettier --config .prettierrc --write '**/*.{js,jsx,ts,tsx,json,css,scss,md}'"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "prettier": "^3.0.3",
     "vite": "^4.4.11"
   },
   "dependencies": {

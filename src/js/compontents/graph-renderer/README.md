@@ -30,11 +30,7 @@ Here's how to integrate and use the `GraphRenderer` component in your web applic
 ### Example Markup
 
 ```html
-<graph-renderer 
-  type="bar" 
-  data="10,20,30" 
-  labels="Jan,Feb,Mar" 
-  color="blue">
+<graph-renderer type="bar" data="10,20,30" labels="Jan,Feb,Mar" color="blue">
 </graph-renderer>
 ```
 

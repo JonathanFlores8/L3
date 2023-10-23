@@ -43,6 +43,6 @@ The `GraphContainer` component comes with predefined styling ensuring a visually
 
 ```css
 graph-container .container {
-    /* your custom styles here */
+  /* your custom styles here */
 }
 ```

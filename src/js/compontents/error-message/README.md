@@ -29,9 +29,7 @@ Here's a simple example of how to use the `ErrorMessage` component:
 Or with HTML content:
 
 ```html
-<error-message>
-    <strong>Error:</strong> Invalid input provided.
-</error-message>
+<error-message> <strong>Error:</strong> Invalid input provided. </error-message>
 ```
 
 ## Methods
@@ -45,6 +43,6 @@ The error message comes with a predefined style, which highlights errors in red.
 
 ```css
 error-message .error-container {
-    /* your custom styles here */
+  /* your custom styles here */
 }
 ```

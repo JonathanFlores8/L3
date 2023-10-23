@@ -1,4 +1,4 @@
-const graphContainerTemplate = document.createElement("template");
+const graphContainerTemplate = document.createElement('template')
 graphContainerTemplate.innerHTML = `
   <style>
     .container {
@@ -15,90 +15,90 @@ graphContainerTemplate.innerHTML = `
   </style>
   <div class="container">
   </div>
-`;
+`
 
 customElements.define(
-  "graph-container",
+  'graph-container',
   class GraphContainer extends HTMLElement {
     constructor() {
-      super();
-      this.attachShadow({ mode: "open" });
+      super()
+      this.attachShadow({ mode: 'open' })
       this.shadowRoot.appendChild(
-        graphContainerTemplate.content.cloneNode(true)
-      );
-      this.titleForm = null;
-      this.typeForm = null;
-      this.dataForm = null;
-      this.graphRenderer = null;
-      this.graphType = "";
+        graphContainerTemplate.content.cloneNode(true),
+      )
+      this.titleForm = null
+      this.typeForm = null
+      this.dataForm = null
+      this.graphRenderer = null
+      this.graphType = ''
     }
 
     connectedCallback() {
-      this.setupTitleForm();
+      this.setupTitleForm()
 
-      this.shadowRoot.addEventListener("formDataChange", (event) => {
-        const detail = event.detail;
+      this.shadowRoot.addEventListener('formDataChange', (event) => {
+        const detail = event.detail
 
         if (detail.title) {
-          this.handleTitleSubmission(detail.title);
+          this.handleTitleSubmission(detail.title)
         } else if (detail.type) {
-          this.handleGraphTypeSelection(detail.type);
+          this.handleGraphTypeSelection(detail.type)
         } else if (detail.labels && detail.data) {
-          this.handleDataSubmission(detail);
+          this.handleDataSubmission(detail)
         }
-      });
-      this.addEventListener("resetGraph", this.resetEverything.bind(this));
+      })
+      this.addEventListener('resetGraph', this.resetEverything.bind(this))
     }
 
     resetEverything() {
-        // Implement reset logic here to reset the graph application.
-      location.reload();
+      // Implement reset logic here to reset the graph application.
+      location.reload()
     }
 
     setupTitleForm() {
-      this.titleForm = document.createElement("graph-form");
-      this.titleForm.setAttribute("type", "title");
-      this.shadowRoot.querySelector(".container").appendChild(this.titleForm);
+      this.titleForm = document.createElement('graph-form')
+      this.titleForm.setAttribute('type', 'title')
+      this.shadowRoot.querySelector('.container').appendChild(this.titleForm)
     }
 
     handleTitleSubmission(title) {
-      this.titleForm.remove();
-      this.setupGraphTypeForm();
+      this.titleForm.remove()
+      this.setupGraphTypeForm()
     }
 
     setupGraphTypeForm() {
-      this.typeForm = document.createElement("graph-form");
-      this.typeForm.setAttribute("type", "graphType");
-      this.shadowRoot.querySelector(".container").appendChild(this.typeForm);
+      this.typeForm = document.createElement('graph-form')
+      this.typeForm.setAttribute('type', 'graphType')
+      this.shadowRoot.querySelector('.container').appendChild(this.typeForm)
     }
 
     handleGraphTypeSelection(graphType) {
-      this.graphType = graphType;
-      this.typeForm.remove();
-      this.setupDataForm();
+      this.graphType = graphType
+      this.typeForm.remove()
+      this.setupDataForm()
     }
 
     setupDataForm() {
-      this.dataForm = document.createElement("graph-form");
-      this.dataForm.setAttribute("type", "data");
-      this.shadowRoot.querySelector(".container").appendChild(this.dataForm);
+      this.dataForm = document.createElement('graph-form')
+      this.dataForm.setAttribute('type', 'data')
+      this.shadowRoot.querySelector('.container').appendChild(this.dataForm)
     }
 
     handleDataSubmission(data) {
-      this.dataForm.remove();
-      this.setupGraphRenderer(data);
+      this.dataForm.remove()
+      this.setupGraphRenderer(data)
     }
 
     setupGraphRenderer(data) {
-      this.graphRenderer = document.createElement("graph-renderer");
+      this.graphRenderer = document.createElement('graph-renderer')
 
-      this.graphRenderer.setAttribute("type", this.graphType);
-      this.graphRenderer.setAttribute("labels", data.labels.join(","));
-      this.graphRenderer.setAttribute("data", data.data.join(","));
+      this.graphRenderer.setAttribute('type', this.graphType)
+      this.graphRenderer.setAttribute('labels', data.labels.join(','))
+      this.graphRenderer.setAttribute('data', data.data.join(','))
 
       this.shadowRoot
-        .querySelector(".container")
-        .appendChild(this.graphRenderer);
+        .querySelector('.container')
+        .appendChild(this.graphRenderer)
     }
-  }
-);
+  },
+)

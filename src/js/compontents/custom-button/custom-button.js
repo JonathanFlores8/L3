@@ -1,4 +1,4 @@
-const buttonTemplate = document.createElement("template");
+const buttonTemplate = document.createElement('template')
 buttonTemplate.innerHTML = `
 <style>
   custom-button {
@@ -30,34 +30,34 @@ button:active {
 </style>
 
 <button></button>
-`;
+`
 
 customElements.define(
-  "custom-button",
+  'custom-button',
   class CustomButton extends HTMLElement {
     constructor() {
-      super();
-      this.attachShadow({ mode: "open" });
-      this.shadowRoot.appendChild(buttonTemplate.content.cloneNode(true));
+      super()
+      this.attachShadow({ mode: 'open' })
+      this.shadowRoot.appendChild(buttonTemplate.content.cloneNode(true))
     }
 
     connectedCallback() {
-      this.configureButtonAttributes();
+      this.configureButtonAttributes()
     }
 
     configureButtonAttributes() {
-      const button = this.shadowRoot.querySelector("button");
-      button.textContent = this.getAttribute("label") || "";
-      button.id = this.getAttribute("id") || "";
+      const button = this.shadowRoot.querySelector('button')
+      button.textContent = this.getAttribute('label') || ''
+      button.id = this.getAttribute('id') || ''
 
-      button.className = this.getAttribute("classes") || "";
+      button.className = this.getAttribute('classes') || ''
 
-      button.addEventListener("click", () => {
-        const action = this.getAttribute("action");
-        if (action && typeof this[action] === "function") {
-          this[action]();
+      button.addEventListener('click', () => {
+        const action = this.getAttribute('action')
+        if (action && typeof this[action] === 'function') {
+          this[action]()
         }
-      });
+      })
     }
-  }
-);
+  },
+)

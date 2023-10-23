@@ -35,7 +35,7 @@ The button comes with a predefined style, ensuring a consistent look and feel. H
 
 ```css
 custom-button button {
-    /* your custom styles here */
+  /* your custom styles here */
 }
 ```
 
