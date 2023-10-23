@@ -140,6 +140,9 @@ customElements.define(
             labels: labels,
             color: this.getAttribute("color") || "blue",
           };
+          this.chart = new MyChart(ctx, config).init();
+          this.chart.draw();
+          this.chart.toggleGrid(true);
         } else if (chartType === "pie") {
           const colors = this.getAttribute("colors")
             ? this.getAttribute("colors").split(",")
@@ -150,10 +153,9 @@ customElements.define(
             labels: labels,
             colors: colors.length ? colors : ["yellow", "orange", "pink"],
           };
+          this.chart = new MyChart(ctx, config).init();
+          this.chart.draw();
         }
-
-        this.chart = new MyChart(ctx, config).init();
-        this.chart.draw();
       } catch (error) {
         console.error("Error initializing the graph:", error);
         this.renderError("Failed to initialize the graph.");
